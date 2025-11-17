@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title> متجر جامد </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+      :root{
+        --main:#35a79c;
+        --accent:#99b898;
+      }
+      @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+      }
+      body{
+        font-family: 'Cairo', Tahoma, Arial, sans-serif;
+        background:#2C3A47;
+        margin:0;
+        padding:20px;
+        color: #F5F6FA;
+      }
+      .wrap{max-width:920px;margin:0 auto}
+      header{display:flex;justify-content:space-between;align-items:center}
+      h1{margin:0;color:var(--main)}
+      .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:18px}
+      .card{
+        background:#404B59;
+        padding:12px;
+        border-radius:8px;
+        box-shadow:0 2px 6px rgba(0, 0, 0, 0.3);
+        text-align:center;
+      }
+      .card img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        border: 1px solid #6B7A8F;
+      }
+      .price{color:var(--main);font-weight:700;margin:8px 0}
+      button{
+        background:var(--main);
+        color:#2C3A47;
+        border:0;
+        padding:8px 10px;
+        border-radius:6px;
+        cursor:pointer;
+        transition: all 0.2s ease-in-out;
+      }
+      button:hover {
+        filter: brightness(1.2);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .cart{
+        position:fixed;left:20px;bottom:20px;
+        background:var(--accent);
+        padding:12px;border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.12)
+      }
+      .cart small{display:block;font-size:14px}
+      .cart button{background:#297972; color:#F5F6FA;}
+      .cart-list{
+        max-width:360px;
+        background:#404B59;
+        padding:12px;
+        border-radius:8px;
+        box-shadow:0 6px 18px rgba(0,0,0,.12);
+        position:fixed;right:20px;top:80px;
+        display:none
+      }
+      .cart-list h3 {
+          border-bottom: 2px solid var(--main);
+          padding-bottom: 5px;
+      }
+      .cart-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 0;
+          border-bottom: 1px solid #6B7A8F;
+          gap: 8px;
+      }
+      .cart-item img {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+          border-radius: 4px;
+          margin-left: 0;
+          margin-right: 8px;
+          border: 1px solid #6B7A8F;
+      }
+      .item-details {
+          flex-grow: 1;
+          text-align: right;
+      }
+      .qty {
+          display: flex;
+          gap: 0;
+          border: 1px solid var(--main);
+          border-radius: 4px;
+          overflow: hidden;
+      }
+      .qty button {
+          background: transparent;
+          color: var(--main);
+          border: none;
+          padding: 4px 8px;
+          font-weight: 700;
+          height: 100%;
+      }
+      .qty div {
+          background: var(--main);
+          color: #2C3A47;
+          padding: 4px 8px;
+          font-weight: 700;
+          line-height: 1.5;
+      }
+      .small{font-size:13px;color:#B4C4D9}
+      @media (max-width:600px){.cart-list{right:10px;left:10px}}
+      .checkout-modal {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.7);
+          display: none;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+      }
+      .checkout-content {
+          background: #404B59;
+          padding: 25px;
+          border-radius: 12px;
+          width: 90%;
+          max-width: 450px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+          animation: fadeIn 0.3s ease-out;
+      }
+      .payment-options {
+          display: grid;
+          gap: 10px;
+          margin-top: 15px;
+      }
+      .payment-option {
+          background: #505E70;
+          padding: 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          text-align: right;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: background 0.2s;
+      }
+      .payment-option:hover {
+          background: #5A6A7E;
+      }
+      .payment-option .logo {
+          font-size: 18px;
+          color: var(--accent);
+      }
+      .installment-option {
+          border-top: 1px dashed #6B7A8F;
+          padding-top: 15px;
+          margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>  الاغراض :  </h1>
+        <div class="small">مشروع عبد الله محمد جمعان الهذلي 3/7</div>
+      </header>
+
+      <div class="products" id="products"></div>
+    </div>
+
+    <div class="cart" id="cartToggle">
+      <div class="small">السلة</div>
+      <small id="cartCount">0 منتج</small>
+      <div style="margin-top:8px"><button id="openCart">عرض السلة</button></div>
+    </div>
+
+    <div class="cart-list" id="cartList">
+      <h3 style="margin:0 0 8px 0">محتوى السلة</h3>
+      <div id="items"></div>
+      <div style="margin-top:8px;text-align:left">
+        <strong>المجموع: </strong><span id="total">0.00</span> $
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-start">
+        <button id="checkout">ادفع</button>
+        <button id="closeCart" style="background:#7F8C8D; color:#2C3A47;">إغلاق</button>
+      </div>
+    </div>
+
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-content">
+            <h3 style="margin:0 0 15px 0; color:var(--main);">اختيار طريقة الدفع الآمنة</h3>
+            <div class="small">المجموع النهائي: <strong id="modalTotal">0.00 $</strong></div>
+
+            <div class="payment-options">
+                <div class="payment-option" onclick="processPayment('visa')">
+                    <span>بطاقة فيزا / مدى / ماستركارد</span>
+                    <span class="logo">💳</span>
+                </div>
+                <div class="payment-option" onclick="processPayment('applepay')">
+                    <span>Apple Pay / STC Pay</span>
+                    <span class="logo"></span>
+                </div>
+                <div class="installment-option">
+                    <div class="small" style="color:#B4C4D9; margin-bottom: 8px;">دفع بالتقسيط (بدون فوائد)</div>
+                    <div class="payment-option" onclick="processPayment('tabby')">
+                        <span>تابي - 4 دفعات</span>
+                        <strong style="color: #61A4B4;">TABBY</strong>
+                    </div>
+                    <div class="payment-option" onclick="processPayment('tamara')">
+                        <span>تمارا - 3 دفعات</span>
+                        <strong style="color: #A362B3;">TAMARA</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top:20px; text-align:left;">
+                <button onclick="closeModal()" style="background:#7F8C8D; color:#2C3A47;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const products = [
+        {id:1, name:'لعبة بلاك اوبس 3', price:70.0, src:"../بلاك.jpg"},
+        {id:2, name:' سوني - خصم 30%', price:1999.0, src:"../سوني.jpg"}, 
+        {id:3, name:'سجادة', price:10.5, src:"../سجادة.jpg"}, 
+        {id:4, name:'عسل', price:45.0, src:"../عسل.jpg"}, 
+        
+    ];
+
+      const cart = {};
+
+      function renderProducts(){
+        const p = document.getElementById('products');
+        p.innerHTML = products.map(prod=>`
+          <div class="card">
+            <img src="${prod.src}" alt="${prod.name}">
+            <div><strong>${prod.name}</strong></div>
+            <div class="price">${prod.price.toFixed(2)} $</div>
+            <button onclick="addToCart(${prod.id})">أضف للسلة</button>
+          </div>
+        `).join('');
+      }
+
+      function addToCart(id){
+        cart[id] = (cart[id]||0)+1;
+        updateCartUI();
+      }
+
+      function updateCartUI(){
+        const count = Object.values(cart).reduce((s,n)=>s+n,0);
+        document.getElementById('cartCount').textContent = `${count} منتج`;
+        renderCartList();
+      }
+
+      function renderCartList(){
+        const itemsDiv = document.getElementById('items');
+        itemsDiv.innerHTML = '';
+        let total = 0;
+        for(const id in cart){
+          const product = products.find(p=>p.id==id);
+          const qty = cart[id];
+          total += product.price * qty;
+          const div = document.createElement('div');
+          div.className = 'cart-item';
+          div.innerHTML = `
+            <img src="${product.src}" alt="${product.name} صورة" /> 
+            <div class="item-details">
+              <div><strong>${product.name}</strong></div>
+              <div class="small">${product.price.toFixed(2)} $</div>
+            </div>
+            <div class="qty">
+              <button onclick="changeQty(${id},1)">+</button>
+              <div>${qty}</div>
+              <button onclick="changeQty(${id},-1)">-</button>
+            </div>
+          `;
+          itemsDiv.appendChild(div);
+        }
+        document.getElementById('total').textContent = total.toFixed(2);
+      }
+
+      function changeQty(id,delta){
+        if(!cart[id]) return;
+        cart[id] += delta;
+        if(cart[id] <= 0) delete cart[id];
+        updateCartUI();
+      }
+
+      function closeModal() {
+          document.getElementById('checkoutModal').style.display = 'none';
+      }
+
+      function processPayment(method) {
+          const total = document.getElementById('total').textContent;
+          closeModal();
+          
+          let message = `تم اختيار طريقة الدفع: `;
+          
+          if (method === 'visa') {
+              message += `بطاقة ائتمانية (فيزا/مدى).`;
+          } else if (method === 'applepay') {
+              message += `Apple Pay/STC Pay.`;
+          } else if (method === 'tabby') {
+              message += `تابي - 4 دفعات.`;
+          } else if (method === 'tamara') {
+              message += `تمارا - 3 دفعات.`;
+          }
+          
+          alert(`${message}\nتمت عملية الدفع بنجاح! قيمة الفاتورة: ${total} $.\nشكراً لك، سيتم مسح السلة.`);
+
+          for(const k in cart) delete cart[k];
+          updateCartUI();
+      }
+
+      document.getElementById('openCart').onclick = ()=>{
+        document.getElementById('cartList').style.display = 'block';
+        renderCartList();
+      };
+      document.getElementById('closeCart').onclick = ()=>{
+        document.getElementById('cartList').style.display = 'none';
+      };
+      document.getElementById('checkout').onclick = ()=>{
+        const count = Object.values(cart).reduce((s,n)=>s+n,0);
+        if(count===0){ alert('السلة فاضية'); return; }
+        
+        document.getElementById('modalTotal').textContent = document.getElementById('total').textContent + ' $';
+        document.getElementById('checkoutModal').style.display = 'flex';
+        document.getElementById('cartList').style.display = 'none'; 
+      };
+
+      renderProducts();
+      updateCartUI();
+    </script>
+  </body>
+</html>
